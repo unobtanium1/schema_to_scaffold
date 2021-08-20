@@ -112,13 +112,14 @@ module SchemaToScaffold
       schema.table(table).to_script(target, migration_flag)
     end
 
-    
+    #new:activeadmin
     def self.generate_script_active_admin(schema, table=nil)
       schema = Schema.new(schema) unless schema.is_a?(Schema)
       return schema.to_script_active_admin if table.nil?
       schema.table(table).to_script_active_admin
     end
 
+    #new:graphql-rails-generator
     def self.generate_script_graphql_rails_generators(schema, table=nil)
       schema = Schema.new(schema) unless schema.is_a?(Schema)
       return schema.to_script_graphql_rails_generators if table.nil?
