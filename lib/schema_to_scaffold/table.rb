@@ -22,10 +22,29 @@ module SchemaToScaffold
       end
       script = []
       script << "rails generate #{target} #{modelize(name)} #{attributes_list}"
-      script << " --no-migration" unless migration_flag
+      script << " --no-migration" unless migration_flag or skip_no_migration_flag
       script << "\n\n"
       script
     end
+
+    def to_script_active_admin
+      script = []
+      script << "rails generate active_admin:resource #{modelize(name)}"
+      script << "\n\n"
+      script
+    end
+
+    #new:activeadmin
+    def to_script_graphql_rails_generators
+      script = []
+      script << "rails generate gql:model_type  #{modelize(name)}"
+      script << "rails generate gql:input #{modelize(name)}"
+      script << "rails generate gql:mutation #{modelize(name)}"
+      script << "rails generate gql:search_object #{modelize(name)}"
+      script << "\n\n"
+      script
+    end
+   
 
     def self.parse(table_data)
       return unless name = table_data[/table "([^"]+?)"/]

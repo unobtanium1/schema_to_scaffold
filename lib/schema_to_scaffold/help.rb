@@ -10,14 +10,16 @@ Generate a rails scaffold script for a given schema.rb
  -c             Will copy the script to your clipboard. Requires xclip be installed on Linux.
  -f             Generates a factory_girl:model rather than a full scaffold.
  -m             Add migration (use if your schema comes from a different database)
+ -n             Skips appending --no-migration if you didn't specify -m add migration
 
-END_OF_HELP
+ END_OF_HELP
 
     ## Windows specific usage help text
     WINDOWS_HELP = <<-WINDOWS_SAMPLE
 Examples:
 scaffold
 scaffold -p C:\\Users\\JohnDoe
+scaffold -n -p C:\\Users\\JohnDoe
 scaffold -c -p C:\\Users\\JohnDoe\\Documents\\schema.rb
 WINDOWS_SAMPLE
 
@@ -25,6 +27,7 @@ WINDOWS_SAMPLE
     LINUX_HELP = <<-LINUX_SAMPLE
 Examples:
 scaffold
+scaffold -n -p ~/work/rails/my_app
 scaffold -c -p ~/work/rails/my_app
 scaffold -c -p ~/work/rails/my_app/db/schema.rb
 LINUX_SAMPLE

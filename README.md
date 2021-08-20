@@ -1,5 +1,54 @@
 # Schema to Scaffold
 
+https://github.com/axrt/schema_to_scaffold
+ Added support for pg_sequencer and any other gem that add support for…
+… objects in the form of 'create_*' in the schema.rb. e.g. create_sequence. if you were getting a 'Could not find tables' error, probably this is why
+
+ lib/schema_to_scaffold/schema.rb
+    def self.parse(data)
+      data.split(/^\s*create_/)[1..-1].map {|table_data| Table.parse table_data }.reject{ |e| e.nil? }
+    end
+
+NOT NEEDED (already done)
+
+https://github.com/dhaneshnm/schema_to_scaffold/commit/45207e35fcb463f529d58fbad7fb75746e286a9f
+
+3 lib/schema_to_scaffold/table.rb
+@@ -20,8 +20,9 @@ def to_script(target, migragion_flag)
+        puts "Table \n\n\n #{self.inspect} \n\n\n"
+        puts "\n ---------------------------------------------"
+      end
+      +return nil if (name.singularize  == name)
+      script = []
+      -script << "rails generate #{target} #{modelize name} #{attributes_list}"
+      +script << "rails generate model  #{modelize name} #{attributes_list}"
+      script << " --no-migration" unless migragion_flag
+      script << "\n\n"
+      return script
+
+
+IGNORED
+
+https://github.com/TrappPartners/schema_to_scaffold
+activeadmin + typescript schema generation add
+
+very good :: https://github.com/TrappPartners/schema_to_scaffold/commit/48a3617cad654937b3809f9238a9b9d064ca00d8
+
+DONE
+
+
+https://github.com/gaultierq/schema_to_scaffold/commit/d32a0f7165aa6b34272f99f41bd07dabb3ec0bb5
+
+
+new cli option + direct exec
+mixed -  NOT DONE
+
+
+
+
+
+
+
 [![Code Climate](https://codeclimate.com/github/frenesim/schema_to_scaffold.png)](https://codeclimate.com/github/frenesim/schema_to_scaffold)
 
 This Gem generates Rails command strings based on a Rails database schema you already have. Unlike traditional migrations, which modify the database as they generate Rails scaffolding code, this Gem reads the schema for your database and generates the Rails code which matches your database's existing columns.

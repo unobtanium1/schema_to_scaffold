@@ -56,11 +56,19 @@ module SchemaToScaffold
       script = []
       target = opts[:factory_girl] ? "factory_girl:model" : "scaffold"
       migration_flag = opts[:migration] ? true : false
+      skip_no_migration_flag = opts[:skip_no_migration] ? true : false
 
       tables.each do |table_id|
         script << generate_script(schema, table_id, target, migration_flag)
+        script_active_admin << generate_script_active_admin(schema, table_id) #new:activeadmin
+        script_graphql << generate_script_graphql_rails_generators(schema, table_id) #new:graphql-rails-generator
       end
       output = script.join("")
+      output_admin = script_active_admin.join("") #new:activeadmin
+      output_graphql = script_graphql.join("") #new:graphql-rails-generator
+      output += output_admin #new:activeadmin
+
+
       puts "\nScript for #{target}:\n\n"
       puts output
 
@@ -82,6 +90,7 @@ module SchemaToScaffold
         clipboard: argv.delete('-c'),    # check for clipboard flag
         factory_girl: argv.delete('-f'), # factory_girl instead of scaffold
         migration: argv.delete('-m'),   # generate migrations
+        skip_no_migration: argv.delete('-n'),   # skip '--no-migration'
         help: argv.delete('-h'),        # check for help flag
         path: path                      # get path to file(s)
       }
@@ -101,6 +110,19 @@ module SchemaToScaffold
       schema = Schema.new(schema) unless schema.is_a?(Schema)
       return schema.to_script if table.nil?
       schema.table(table).to_script(target, migration_flag)
+    end
+
+    
+    def self.generate_script_active_admin(schema, table=nil)
+      schema = Schema.new(schema) unless schema.is_a?(Schema)
+      return schema.to_script_active_admin if table.nil?
+      schema.table(table).to_script_active_admin
+    end
+
+    def self.generate_script_graphql_rails_generators(schema, table=nil)
+      schema = Schema.new(schema) unless schema.is_a?(Schema)
+      return schema.to_script_active_admin if table.nil?
+      schema.table(table).to_script_active_admin
     end
 
   end
