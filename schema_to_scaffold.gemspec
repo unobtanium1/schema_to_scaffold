@@ -8,6 +8,19 @@ Gem::Specification.new do |gem|
   gem.version       = SchemaToScaffold::VERSION
   gem.authors       = ["João Soares", "Humberto Pinto"]
   gem.email         = ["jsoaresgeral@gmail.com", "hlsp999@gmail.com"]
+  #if gem.respond_to?(:metadata)
+  #  gem.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+  #  gem.metadata['bug_tracker_uri'] = ""   => "https://example.com/user/bestgemever/issues",
+  #  gem.metadata['changelog_uri'] = ""     => "https://example.com/user/bestgemever/CHANGELOG.md",
+  #  gem.metadata['documentation_uri'] = "" => "https://www.example.info/gems/bestgemever/0.0.1",
+  #  gem.metadata['homepage_uri'] = ""      => "https://bestgemever.example.io",
+  #  gem.metadata['mailing_list_uri'] = ""  => "https://groups.example.com/bestgemever",
+  #  gem.metadata['source_code_uri'] = ""   => "https://example.com/user/bestgemever",
+  #  gem.metadata['wiki_uri'] = ""          => "https://example.com/user/bestgemever/wiki"
+  #  gem.metadata['funding_uri'] = ""       => "https://example.com/donate"
+  #else
+  #  raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
+  #end
   gem.description   = <<-EOD
   Command line app which parses a schema.rb file obtained from your rails repo or by running rake:schema:dump
 EOD
