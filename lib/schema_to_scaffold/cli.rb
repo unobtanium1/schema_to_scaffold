@@ -121,8 +121,8 @@ module SchemaToScaffold
 
     def self.generate_script_graphql_rails_generators(schema, table=nil)
       schema = Schema.new(schema) unless schema.is_a?(Schema)
-      return schema.to_script_active_admin if table.nil?
-      schema.table(table).to_script_active_admin
+      return schema.to_script_graphql_rails_generators if table.nil?
+      schema.table(table).to_script_graphql_rails_generators
     end
 
   end
