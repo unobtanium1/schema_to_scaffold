@@ -75,6 +75,9 @@ module SchemaToScaffold
       table_names = schema.table_names
       known_tables = []
 
+      references_to_ignore = [ "CreatedBy", "UpdatedBy", "User"]
+
+
       tables.each do |table_id|
         scaffold_data = generate_script(schema, table_id, target, migration_flag, skip_no_migration_flag) 
         activeadmin_data = generate_script_active_admin(schema, table_id) #new:activeadmin
@@ -91,7 +94,7 @@ module SchemaToScaffold
         known_tables << table_name
         script_hash[table_name] = {
           scaffold: scaffold_data, activeadmin: activeadmin_data, graphql_data: graphql_data, 
-          references: (scaffold_data.join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| [ "CreatedBy", "UpdatedBy"].include? x}
+          references: (scaffold_data.join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| references_to_ignore.include? x}
         }
         #script_hash_references[table_name] = (scaffold_data.join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| [ "CreatedBy", "UpdatedBy"].include? x}
       end
@@ -104,17 +107,20 @@ module SchemaToScaffold
         remaining_references = {}
         while !(script_hash.empty?)
           output_sequence << "\n\n# ************  RESOLVE LEVEL: #{resolve_level_count}   **************\n\n"
-          #puts "\n# Dependencies: #{resolve_level_count}\n"
-          #puts "\n\nSeen Tables: #{seen_tables.sort.join(', ')}\n"
+          
+          puts "\n# resolve_level_count: #{resolve_level_count}\n"
+          puts "\n\nSeen Tables: #{seen_tables.sort.join(', ')}\n"
+
           all_unresolved = true
           script_hash.each do |table_name, gen_data|
 
-              references_for_table = gen_data[:references].reject{|x| !(known_tables.include? x)}
-              all_references = (gen_data[:scaffold].join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| [ "CreatedBy", "UpdatedBy"].include? x}
+              references_for_table = gen_data[:references].reject{|x| !(known_tables.include? x)} #reject unknown tables
+
+              all_references = (gen_data[:scaffold].join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| references_to_ignore.include? x}
               all_references_str = all_references.map{|x| (seen_table_at.key? x) ? [x, seen_table_at[x]] : [x,999] }.to_h.sort_by {|k,v| v}.to_h
 
               if references_for_table.empty?
-                #puts "creating #{table_name} base-table"
+                puts "creating #{table_name} base-table"
                 seen_tables << table_name
                 seen_table_at[table_name] = resolve_level_count
                 output_sequence << gen_data[:scaffold]
@@ -126,18 +132,31 @@ module SchemaToScaffold
                 all_unresolved = false
               else
                 script_hash[table_name][:references] = references_for_table.reject{|x| seen_tables.include?(x) }
-                #puts "#{script_hash[table_name][:references].count} unresolved: \t#{table_name}  references:#{script_hash[table_name][:references] }"
+                puts "#{references_for_table.count} unresolved: \t#{table_name}  references:#{references_for_table }"
               end
-            end
+          end
+          
           resolve_level_count += 1
           if all_unresolved
-            puts "\n\n\nError, missing some references.  Seen Tables: #{seen_tables.sort.join(', ')}\n"
+            puts "\n\n\nError, missing some references (#{all_unresolved}).\n\nSeen Tables: #{seen_tables.sort.join(', ')}\n"
             script_hash.each do |table_name, gen_data|
               references_for_table = gen_data[:references].reject{|x| known_tables.include? x}
               puts "#{references_for_table.count} unresolved: \t#{table_name}  references:#{references_for_table}"
             end
-            exit(1)
+            #exit(1)
+            #tack it on as is because screw it, what can you do?
+            script_hash.each do |table_name, gen_data|
+              all_references = (gen_data[:scaffold].join('').scan(/ (\w+):references/)).flatten.map{|x| x.camelize.singularize}.reject{|x| references_to_ignore.include? x}
+              all_references_str = all_references.map{|x| (seen_table_at.key? x) ? [x, seen_table_at[x]] : [x,999] }.to_h.sort_by {|k,v| v}.to_h
+              output_sequence << "# ****** WARNING: unresolved references *****\n\n"
+              output_sequence << gen_data[:scaffold]
+              output_sequence << gen_data[:activeadmin]
+              output_sequence << gen_data[:graphql_data]
+              output_sequence << "# references: #{ all_references_str }"
+              output_sequence << "\n\n"
+            end
           end
+
         end
         output = output_sequence.join("")
         puts "\nScript for #{target}:\n\n"
