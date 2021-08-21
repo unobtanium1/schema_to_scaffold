@@ -1,3 +1,5 @@
+extended for auto-output, aciveadmin/graphql-rails-generators and iterated resolve (on anything marked as a reference)
+
 # Schema to Scaffold
 
 https://github.com/axrt/schema_to_scaffold
