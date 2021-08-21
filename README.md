@@ -1,3 +1,9 @@
+sample use:
+~~~
+mkdir output
+cls; scaffold -o -n -p .\vteams-open-source-billing-schema.rb
+~~~
+
 extended for auto-output, aciveadmin/graphql-rails-generators and iterated resolve (on anything marked as a reference)
 
 # Schema to Scaffold
