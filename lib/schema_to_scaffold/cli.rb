@@ -75,7 +75,7 @@ module SchemaToScaffold
       table_names = schema.table_names
       known_tables = []
 
-      references_to_ignore = [ "CreatedBy", "UpdatedBy", "User"]
+      references_to_ignore = [ "CreatedBy", "UpdatedBy", "User",  "Updator", "Creator", "created", "updated"]
 
 
       tables.each do |table_id|
@@ -105,7 +105,10 @@ module SchemaToScaffold
         seen_table_at = {}
         resolve_level_count = 0
         remaining_references = {}
-        while !(script_hash.empty?)
+
+        script_hash_empty = !(script_hash.empty?)
+
+        while script_hash_empty
           output_sequence << "\n\n# ************  RESOLVE LEVEL: #{resolve_level_count}   **************\n\n"
           
           puts "\n# resolve_level_count: #{resolve_level_count}\n"
@@ -137,7 +140,8 @@ module SchemaToScaffold
           end
           
           resolve_level_count += 1
-          if all_unresolved
+
+          if all_unresolved  #|| resolve_level_count > 10 
             puts "\n\n\nError, missing some references (#{all_unresolved}).\n\nSeen Tables: #{seen_tables.sort.join(', ')}\n"
             script_hash.each do |table_name, gen_data|
               references_for_table = gen_data[:references].reject{|x| known_tables.include? x}
@@ -155,7 +159,11 @@ module SchemaToScaffold
               output_sequence << "# references: #{ all_references_str }"
               output_sequence << "\n\n"
             end
+            #breakout
+            script_hash_empty= false
           end
+
+
 
         end
         output = output_sequence.join("")
